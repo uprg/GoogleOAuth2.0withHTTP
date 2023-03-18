@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OAuth 2.0</title>
+</head>
+
+<body onload="getAuthorizationToken();">
+    <button onclick="getAuthorizationCode();">get code</button>
+    
+
+    <script>
+        /* Info */
+        let CLIENT_ID = "PASTE YOUR CLIENT ID";
+        let CLIENT_SECRET = "PASTE YOUR CLIENT SECRET";
+        let REDIRECT_URI = "PASTE YOUR REDIRECT URI";
+        let RESPONSE_TYPE = "code";
+        let SCOPES = "PASTE YOUR SCOPES WITH SPACE DELIMITER OR JUST A SCOPE";
+        let GRANT_TYPE = "authorization_code";
+        let AUTHORIZATION_CODE_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth";
+        let AUTHORIZATION_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
+
+        /* Authorization Code URL */
+        let authorizationCodeURL = `${AUTHORIZATION_CODE_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPES}`;
+
+        /* Initiates Authorization Code Flow */
+        function getAuthorizationCode() {
+
+            /* Creating Anchor Tag For Performing Authorization Code Request */
+            let a = window.document.createElement("a");
+            a.href = authorizationCodeURL;
+            a.click();
+            a.remove();
+        }
+
+        /* Initiates Authorization Token Flow */
+        async function getAuthorizationToken() {
+
+            /* Grabbing Authorization Code From URL */
+            let url = new URL(window.location.href);
+            let code = url.searchParams.get("code");
+
+            /* If Code Exist Exchanging Authorization Code For Access Token */
+            if (code !== null && code.trim().length !== 0) {
+
+                /* Authorization Token URL */
+                let authorizationTokenURL = `${AUTHORIZATION_TOKEN_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&client_secret=${CLIENT_SECRET}&code=${code}&grant_type=${GRANT_TYPE}`;
+
+                /* Requesting For Access Token */
+                const headers = {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                };
+
+                const options = {
+                    method: "POST",
+                    headers
+                };
+
+                const response = await fetch(authorizationTokenURL, options);
+
+                const data = await response.json();
+
+                console.log(data);
+            }
+        }
+    </script>
+</body>
+
+</html>
